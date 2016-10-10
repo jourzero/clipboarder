@@ -3,13 +3,6 @@
  */
 package burp;
 
-import burp.IBurpExtender;
-import burp.IBurpExtenderCallbacks;
-import burp.IContextMenuFactory;
-import burp.IContextMenuInvocation;
-import burp.IExtensionHelpers;
-import burp.IHttpRequestResponse;
-import burp.IRequestInfo;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -18,17 +11,17 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
-//import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JMenuItem;
+import java.util.Base64.Encoder;
 
 public class BurpExtender implements IBurpExtender, IContextMenuFactory, ClipboardOwner {
     private IExtensionHelpers helpers;
     private static final String EXT_NAME                            = "Clipboarder";
     private static final String PROXYHIST_CONTEXTMENU_COPYRAW       = "Copy as raw HTTP";
     private static final String TARGETISSUES_CONTEXTMENU_COPYTEXT   = "Copy as free text";
-    private static final String TARGETISSUES_CONTEXTMENU_COPYTSV    = "Copy as tab-delimited";
+    private static StringBuilder strBuf = new StringBuilder(); 
     private IScanIssue[] selectedIssues = null;
     PrintWriter stdout = null;
     PrintWriter stderr = null;
@@ -40,8 +33,10 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
         this.helpers = callbacks.getHelpers();
         callbacks.setExtensionName(EXT_NAME);
         callbacks.registerContextMenuFactory((IContextMenuFactory)this);
-        this.stdout.println("Use " + EXT_NAME+" to quickly extract data from Burp to feed other tools or during reporting.\n" + "Cheers,\nEric Paquet <eric@jourzero.com>\n");
-
+        this.stdout.println("Use " + EXT_NAME+" to quickly extract data from Burp to feed other tools or reports:"
+                + "\n- In Proxy/History, choose " + PROXYHIST_CONTEXTMENU_COPYRAW 
+                + "\n- In Target/Issues, choose " + TARGETISSUES_CONTEXTMENU_COPYTEXT
+                + "\nCheers,\nEric Paquet <eric@jourzero.com>\n");
     }
 
     public List<JMenuItem> createMenuItems(IContextMenuInvocation invocation) {
@@ -77,24 +72,69 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
     private void copyIssueText(IScanIssue[] issues) {
         StringBuilder buf = new StringBuilder();
         int issueId=0, prevIssueId=0;
+        Boolean firstInstance = true;
+        IHttpRequestResponse firstMsg = null;
+        strBuf = null;
         
         for (IScanIssue issue : issues) {
             issueId = issue.getIssueType();
             if (issueId != prevIssueId){
-                buf.append("\n");
-                buf.append("\nIssue: "                  + issue.getIssueName());
-                buf.append("\nIssue Type: "             + issueId);
-                buf.append("\nSeverity: "               + issue.getSeverity());
-                buf.append("\nIssue Background: "       + issue.getIssueBackground());
-                buf.append("\nIssue Details: "          + issue.getIssueDetail());
-                buf.append("\nRemediation Background: " + issue.getRemediationBackground());
-                buf.append("\nRemediation Details: "    + issue.getRemediationDetail());
-                buf.append("\nConfidence: "             + issue.getConfidence());
-                buf.append("\nAffected URL(s): ");
+                firstInstance = true;
+                firstMsg = null;
+                strBuf = null;
+
+                /*
+                buf.append("\nIssue\tIssue_ID\tSeverity\tIssue_Background\tIssue_Details");
+                buf.append("\tRemediation_Background\tRemediation_Details\tConfidence\tURLs\tInstance1_Evidence");
+                buf.append("\n" + issue.getIssueName());
+                buf.append("\t" + issueId);
+                buf.append("\t" + issue.getSeverity());
+                buf.append("\t" + issue.getIssueBackground());
+                buf.append("\t" + issue.getIssueDetail());
+                buf.append("\t" + issue.getRemediationBackground());
+                buf.append("\t" + issue.getRemediationDetail());
+                buf.append("\t" + issue.getConfidence());
+                buf.append("\t");
+                */
+                buf.append("----------------------------------------------------------------");
+                buf.append("\nIssue: "                      + issue.getIssueName());
+                buf.append("\nIssue ID: "                   + issueId);
+                buf.append("\nSeverity: "                   + issue.getSeverity());
+                buf.append("\nConfidence:  "                + issue.getConfidence());
+                buf.append("\nIssue Background:\n"          + issue.getIssueBackground());
+                buf.append("\n~\nIssue Details:\n"          + issue.getIssueDetail());
+                buf.append("\n~\nRemediation Background:\n" + issue.getRemediationBackground());
+                buf.append("\n~\nRemediation Details:\n"    + issue.getRemediationDetail());
+                buf.append("\n~\nEvidence Data (Base64-encoded): ");     
+                /*
+                buf.append("\nIssue\tIssue_ID\tSeverity\tIssue_Background\tIssue_Details");
+                buf.append("\tRemediation_Background\tRemediation_Details\tConfidence\tURLs\tInstance1_Evidence");
+                buf.append("\n" + issue.getIssueName());
+                buf.append("\t" + issueId);
+                buf.append("\t" + issue.getSeverity());
+                buf.append("\t" + issue.getIssueBackground());
+                buf.append("\t" + issue.getIssueDetail());
+                buf.append("\t" + issue.getRemediationBackground());
+                buf.append("\t" + issue.getRemediationDetail());
+                buf.append("\t" + issue.getConfidence());
+                buf.append("\t");
+                */
+                firstMsg = issue.getHttpMessages()[0];
+                strBuf = new StringBuilder();
+                this.buildRawHttpBuffer(firstMsg);
+                // Add Evidence data
+                if (strBuf != null){
+                    buf.append(this.toBase64(strBuf.toString()));
+                }
+                buf.append("\n~\nAffected URL(s):");
             }
-            //buf.append("\nHost: "                   + issue.getHttpService().getHost());
-            buf.append("\n - "                    + issue.getUrl().toString());
+            else
+                firstInstance = false;
+            
+            // Add URLs that are affected by the issue
+            buf.append("\n - " + issue.getUrl().toString());
             prevIssueId = issueId;
+            
         }
 
         // Send to clipboard
@@ -102,38 +142,51 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
     }
 
     private void copyRawHttp(IHttpRequestResponse[] messages) {
-        StringBuilder buf = new StringBuilder();
-        int counter = 0;
+        strBuf = new StringBuilder();
         for (IHttpRequestResponse message : messages) {
-            counter++;
-            IRequestInfo ri = this.helpers.analyzeRequest(message);
-            byte[] req = message.getRequest();
-            buf.append("\n=== REQUEST #" + counter + " ===\n");
-            for (String header : ri.getHeaders()) {
-                buf.append(header);
-                buf.append("\n");
-            }
-            int bo = ri.getBodyOffset();
-            if (bo < req.length - 1) {
-                buf.append("\n");
-                buf.append(new String(req, bo, req.length - bo));
-            }
-
-            byte[] rsp = message.getResponse();
-            buf.append("\n=== RESPONSE #" + counter + " ===\n");
-            if (rsp.length > 0) {
-                buf.append(this.helpers.bytesToString(rsp));
-            }
-            buf.append("\n=== END OF #" + counter + " ===\n");
+            buildRawHttpBuffer(message);
         }
 
         // Send to clipboard
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(buf.toString()), this);
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(strBuf.toString()), this);
     }
 
+    private void buildRawHttpBuffer(IHttpRequestResponse message){
+        
+        IRequestInfo ri = this.helpers.analyzeRequest(message);
+        byte[] req = message.getRequest();
+        Boolean firstHeader = true;
+        for (String header : ri.getHeaders()) {
+            if (firstHeader){
+                String[] elements = header.split(" ");
+                String url = elements[1];
+                strBuf.append("\n======== PATH: " + url + " ========");
+                strBuf.append("\n*** REQUEST ***\n");
+                firstHeader = false;
+            }
+            strBuf.append(header);
+            strBuf.append("\n");
+        }
+        int bo = ri.getBodyOffset();
+        if (bo < req.length - 1) {
+            strBuf.append("\n");
+            strBuf.append(new String(req, bo, req.length - bo));
+        }
+
+        byte[] rsp = message.getResponse();
+        strBuf.append("\n*** RESPONSE ***\n");
+        if (rsp.length > 0) {
+            strBuf.append(this.helpers.bytesToString(rsp));
+        }
+        strBuf.append("\n****************");
+    }
 
     private String escapeQuotes(String value) {
         return value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
+    }
+    
+    private String toBase64(String text){        
+        return java.util.Base64.getEncoder().encodeToString(text.getBytes());
     }
 
     @Override
