@@ -19,8 +19,8 @@ import java.util.Base64.Encoder;
 public class BurpExtender implements IBurpExtender, IContextMenuFactory, ClipboardOwner {
     private IExtensionHelpers helpers;
     private static final String EXT_NAME                            = "Clipboarder";
-    private static final String PROXYHIST_CONTEXTMENU_COPYRAW       = "Copy as raw HTTP";
-    private static final String TARGETISSUES_CONTEXTMENU_COPYTEXT   = "Copy as free text";
+    private static final String PROXYHIST_CONTEXTMENU_COPYRAW       = "Copy as raw HTTP to clipboard";
+    private static final String TARGETISSUES_CONTEXTMENU_COPYTEXT   = "Copy as free text to clipboard";
     private static StringBuilder strBuf = new StringBuilder(); 
     private IScanIssue[] selectedIssues = null;
     PrintWriter stdout = null;
@@ -105,7 +105,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                 buf.append("\n~\nIssue Details:\n"          + issue.getIssueDetail());
                 buf.append("\n~\nRemediation Background:\n" + issue.getRemediationBackground());
                 buf.append("\n~\nRemediation Details:\n"    + issue.getRemediationDetail());
-                buf.append("\n~\nEvidence Data (Base64-encoded): ");     
+                buf.append("\n~\nEvidence Data (Base64): ");     
                 /*
                 buf.append("\nIssue\tIssue_ID\tSeverity\tIssue_Background\tIssue_Details");
                 buf.append("\tRemediation_Background\tRemediation_Details\tConfidence\tURLs\tInstance1_Evidence");
