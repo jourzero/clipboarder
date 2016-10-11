@@ -99,27 +99,27 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
         // Iterate through all selected issues
         for (IScanIssue issue : issues) {
             issueName = issue.getIssueName();
-            this.stdout.println("Reading data for issue: " + issueName);
+            //this.stdout.println("DEBUG: Reading data for issue: " + issueName);
             
             // If the issue name at hand is different, print the details.
             // If it is not different (from the previous), just print the URL. 
             // This logic essentially collapses multiple instances of the same issue.
             if (!issueName.equals(prevIssueName)){
-                this.stdout.println("Copying general issue data for: " + issue.getIssueName());
+                this.stdout.println("Copying issue data for: " + issue.getIssueName());
                 firstMsg = null;
                 strBuf = null;
                 buf.append("\n\n----------------------------------------------------------------");
                 buf.append("\nIssue: "                      + issue.getIssueName());
                 buf.append("\nSeverity: "                   + issue.getSeverity());
                 buf.append("\nConfidence: "                 + issue.getConfidence());
-                buf.append("\nIssue Background:\n"          + issue.getIssueBackground());
-                //buf.append("\n~\nIssue Details:\n"          + issue.getIssueDetail());
-                buf.append("\n~\nRemediation Background:\n" + issue.getRemediationBackground());
-                //buf.append("\n~\nRemediation Details:\n"    + issue.getRemediationDetail());
+                if (issue.getIssueBackground() != null)       buf.append("\nIssue Background:\n"                       + issue.getIssueBackground());
+                if (issue.getRemediationBackground() != null) buf.append("\n~\nRemediation Background:\n"              + issue.getRemediationBackground());
+                if (issue.getIssueDetail() != null)           buf.append("\n~\nIssue Details (1st instance):\n"        + issue.getIssueDetail());
+                if (issue.getRemediationDetail() != null)     buf.append("\n~\nRemediation Details (1st instance):\n"  + issue.getRemediationDetail());
                 
                 // Add evidence data if applicable
                 if (issue.getHttpMessages().length > 0){
-                    buf.append("\n~\nEvidence data (Base64-encoded): ");
+                    buf.append("\n~\nRequest/Response in Base64 (1st instance): ");
                     strBuf = new StringBuilder();
                     for (IHttpRequestResponse msg: issue.getHttpMessages()){
                         this.buildRawHttpBuffer(msg);
