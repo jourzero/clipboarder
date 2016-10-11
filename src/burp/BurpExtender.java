@@ -71,34 +71,20 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
     
     private void copyIssueText(IScanIssue[] issues) {
         StringBuilder buf = new StringBuilder();
-        int issueId=0, prevIssueId=0;
+        int issueType=0, prevIssueType=0;
         Boolean firstInstance = true;
         IHttpRequestResponse firstMsg = null;
         strBuf = null;
         
         for (IScanIssue issue : issues) {
-            issueId = issue.getIssueType();
-            if (issueId != prevIssueId){
+            issueType = issue.getIssueType();
+            if (issueType != prevIssueType){
                 firstInstance = true;
                 firstMsg = null;
                 strBuf = null;
-
-                /*
-                buf.append("\nIssue\tIssue_ID\tSeverity\tIssue_Background\tIssue_Details");
-                buf.append("\tRemediation_Background\tRemediation_Details\tConfidence\tURLs\tInstance1_Evidence");
-                buf.append("\n" + issue.getIssueName());
-                buf.append("\t" + issueId);
-                buf.append("\t" + issue.getSeverity());
-                buf.append("\t" + issue.getIssueBackground());
-                buf.append("\t" + issue.getIssueDetail());
-                buf.append("\t" + issue.getRemediationBackground());
-                buf.append("\t" + issue.getRemediationDetail());
-                buf.append("\t" + issue.getConfidence());
-                buf.append("\t");
-                */
                 buf.append("----------------------------------------------------------------");
                 buf.append("\nIssue: "                      + issue.getIssueName());
-                buf.append("\nIssue ID: "                   + issueId);
+                buf.append("\nIssue Type: "                 + issueType);
                 buf.append("\nSeverity: "                   + issue.getSeverity());
                 buf.append("\nConfidence:  "                + issue.getConfidence());
                 buf.append("\nIssue Background:\n"          + issue.getIssueBackground());
@@ -106,19 +92,6 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                 buf.append("\n~\nRemediation Background:\n" + issue.getRemediationBackground());
                 buf.append("\n~\nRemediation Details:\n"    + issue.getRemediationDetail());
                 buf.append("\n~\nEvidence Data (Base64): ");     
-                /*
-                buf.append("\nIssue\tIssue_ID\tSeverity\tIssue_Background\tIssue_Details");
-                buf.append("\tRemediation_Background\tRemediation_Details\tConfidence\tURLs\tInstance1_Evidence");
-                buf.append("\n" + issue.getIssueName());
-                buf.append("\t" + issueId);
-                buf.append("\t" + issue.getSeverity());
-                buf.append("\t" + issue.getIssueBackground());
-                buf.append("\t" + issue.getIssueDetail());
-                buf.append("\t" + issue.getRemediationBackground());
-                buf.append("\t" + issue.getRemediationDetail());
-                buf.append("\t" + issue.getConfidence());
-                buf.append("\t");
-                */
                 firstMsg = issue.getHttpMessages()[0];
                 strBuf = new StringBuilder();
                 this.buildRawHttpBuffer(firstMsg);
@@ -133,7 +106,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
             
             // Add URLs that are affected by the issue
             buf.append("\n - " + issue.getUrl().toString());
-            prevIssueId = issueId;
+            prevIssueType = issueType;
             
         }
 
