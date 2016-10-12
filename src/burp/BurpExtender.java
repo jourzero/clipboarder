@@ -34,14 +34,19 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
         callbacks.setExtensionName(EXT_NAME);
         callbacks.registerContextMenuFactory((IContextMenuFactory)this);
         this.stdout.println(
-                  "\n======================================================================================"
+                  "\n=======================================================================================================\n"
                 + "\nUse " + EXT_NAME+" to quickly extract data from Burp to feed other tools or reports:"
                 + "\n- In Proxy/History, choose " + PROXYHIST_CONTEXTMENU_COPYRAW 
                 + "\n- In Target/Issues, choose " + TARGETISSUES_CONTEXTMENU_COPYTEXT
                 + "\nLatest source here: https://github.com/jourzero/clipboarder"
                 + "\nCheers,"
                 + "\nEric Paquet <eric@jourzero.com>"
-                + "\n======================================================================================\n");
+                + "\n"
+                + "\nNotes:"
+                + "\n- Evidence corresponds to the Request/Response for the 1st instance of an inssue, encoded in Base64."
+                + "\n- Rmediation Details (when included) is specific to the 1st instance of an issue (others are not kept)."
+                + "\n- Issue Details (when included) is specific to the 1st instance of an issue (others are not kept)."
+                + "\n=======================================================================================================\n");
     }
 
     /**
@@ -114,12 +119,12 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                 buf.append("\nConfidence: "                 + issue.getConfidence());
                 if (issue.getIssueBackground() != null)       buf.append("\nIssue Background:\n"                       + issue.getIssueBackground());
                 if (issue.getRemediationBackground() != null) buf.append("\n~\nRemediation Background:\n"              + issue.getRemediationBackground());
-                if (issue.getIssueDetail() != null)           buf.append("\n~\nIssue Details (1st instance):\n"        + issue.getIssueDetail());
-                if (issue.getRemediationDetail() != null)     buf.append("\n~\nRemediation Details (1st instance):\n"  + issue.getRemediationDetail());
+                if (issue.getIssueDetail() != null)           buf.append("\n~\nIssue Details:\n"        + issue.getIssueDetail());
+                if (issue.getRemediationDetail() != null)     buf.append("\n~\nRemediation Details:\n"  + issue.getRemediationDetail());
                 
                 // Add evidence data if applicable
                 if (issue.getHttpMessages().length > 0){
-                    buf.append("\n~\nRequest/Response in Base64 (1st instance): ");
+                    buf.append("\n~\nEvidence: ");
                     strBuf = new StringBuilder();
                     for (IHttpRequestResponse msg: issue.getHttpMessages()){
                         this.buildRawHttpBuffer(msg);
@@ -128,7 +133,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                         buf.append(toBase64(strBuf.toString()));
                     }
                 }
-                buf.append("\n~\nAffected URL(s):");
+                buf.append("\n~\nURL(s):");
             }
             
             // Add URLs that are affected by the issue
