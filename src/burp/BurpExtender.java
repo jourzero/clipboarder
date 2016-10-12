@@ -108,7 +108,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                 this.stdout.println("Copying issue data for: " + issue.getIssueName());
                 firstMsg = null;
                 strBuf = null;
-                buf.append("\n\n----------------------------------------------------------------");
+                buf.append("\n\n\n");
                 buf.append("\nIssue: "                      + issue.getIssueName());
                 buf.append("\nSeverity: "                   + issue.getSeverity());
                 buf.append("\nConfidence: "                 + issue.getConfidence());
@@ -142,7 +142,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
 
         // Send to clipboard
         try{
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(buf.toString()), this);  
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(buf.toString().trim()), this);  
         }
         catch (Exception e) {
             this.stderr.println("ERROR: Failed copying issue data to clipboard!");
@@ -162,7 +162,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
 
         // Send to clipboard
         try{
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(strBuf.toString()), this);
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(strBuf.toString().trim()), this);
             this.stdout.println("Copied raw HTTP data to clipboard for " + messages.length + " messages");
         }
         catch (Exception e) {
