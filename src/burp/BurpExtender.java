@@ -43,9 +43,9 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                 + "\nEric Paquet <eric@jourzero.com>"
                 + "\n"
                 + "\nNotes:"
-                + "\n- Evidence corresponds to the Request/Response for the 1st instance of an inssue, encoded in Base64."
-                + "\n- Rmediation Details (when included) is specific to the 1st instance of an issue (others are not kept)."
-                + "\n- Issue Details (when included) is specific to the 1st instance of an issue (others are not kept)."
+                + "\n- Evidence corresponds to the Request/Response for the 1st instance of an issue, encoded in Base64"
+                + "\n- Remediation Details (when included) is specific to the 1st instance of an issue (others are not kept)"
+                + "\n- Issue Details (when included) is specific to the 1st instance of an issue (others are not kept)"
                 + "\n=======================================================================================================\n");
     }
 
