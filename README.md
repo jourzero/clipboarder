@@ -12,6 +12,6 @@ _Context: Target/Issues_
 * Add Menu "Copy as free text to clipboard" that puts the issue details in free text form into the clipboard
 * Supports the selection of multiple issues
 * When an issue has multiple instances, all URLs are listed together
-* Only the first HTTP Request/Response pair is included as Evidence data (Base64-encoded).
+* Only the HTTP Request/Response pair(s) for the first instance of an issue is included as Evidence data (Base64-encoded)
 
-Status: In Development
+Status: Released
