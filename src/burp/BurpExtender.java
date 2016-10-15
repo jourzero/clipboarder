@@ -40,7 +40,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                 + "\n- In Target/Issues, choose " + TARGETISSUES_CONTEXTMENU_COPYTEXT
                 + "\nLatest source here: https://github.com/jourzero/clipboarder"
                 + "\nCheers,"
-                + "\nEric Paquet <eric@jourzero.com>"
+                + "\nEric Paquet"
                 + "\n"
                 + "\nNotes:"
                 + "\n- Evidence corresponds to the Request/Response for the 1st instance of an issue, encoded in Base64"
