@@ -34,7 +34,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
         callbacks.setExtensionName(EXT_NAME);
         callbacks.registerContextMenuFactory((IContextMenuFactory)this);
         this.stdout.println(
-                  "\n=======================================================================================================\n"
+                  "\n======================================================================================================="
                 + "\nUse " + EXT_NAME+" to quickly extract data from Burp to feed other tools or reports:"
                 + "\n- In Proxy/History, choose " + PROXYHIST_CONTEXTMENU_COPYRAW 
                 + "\n- In Target/Issues, choose " + TARGETISSUES_CONTEXTMENU_COPYTEXT
