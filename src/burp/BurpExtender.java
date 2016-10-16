@@ -44,6 +44,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                 + "\n- Remediation Details (when included) is specific to the 1st instance of an issue (others are not kept)"
                 + "\n- Issue Details (when included) is specific to the 1st instance of an issue (others are not kept)"
                 + "\n- Latest source can be found here: https://github.com/jourzero/clipboarder"
+                + "\n- Please log issues/requests here: https://github.com/jourzero/clipboarder/issues"
                 + "\n================================================================================================================\n");
     }
 
