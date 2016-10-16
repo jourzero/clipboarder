@@ -38,7 +38,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                 + "\nUse " + EXT_NAME+" to quickly extract data from Burp to feed other tools or reports:"
                 + "\n- In Proxy/History or Target/Contents, choose " + PROXYHIST_CONTEXTMENU_COPYRAW 
                 + "\n- In Target/Issues, choose " + TARGETISSUES_CONTEXTMENU_COPYTEXT
-                + "\nCheers,\nEric Paquet <eric@jourzero.com>\n"
+                + "\nCheers,\nEric Paquet\n"
                 + "\nNotes:"
                 + "\n- Evidence (in issue clipboard data) corresponds to Request/Response for the 1st instance of an issue, in Base64"
                 + "\n- Remediation Details (when included) is specific to the 1st instance of an issue (others are not kept)"
