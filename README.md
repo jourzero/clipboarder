@@ -2,13 +2,13 @@
 
 Burp app that adds "Copy as ... to clipboard" in Burp context menus. All it does is copy plain text to the clipboard, in the given UI context.
 
-Current features
+## Current features
 
-_Context: Proxy/HTTP-History_
+### Context: Proxy/HTTP-History
 * Add menu "Copy as raw HTTP to clipboard" that puts HTTP request and response text into the clipboard
 * Supports the selection of multiple HTTP messages
 
-_Context: Target/Issues_
+### Context: Target/Issues
 * Add Menu "Copy as free text to clipboard" that puts the issue details in free text form into the clipboard
 * Supports the selection of multiple issues
 * When an issue has multiple instances, all URLs are listed together
