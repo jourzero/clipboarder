@@ -1,5 +1,5 @@
 /*
- * Clipboarder extension
+ * Burp Clipboarder extension
  */
 package burp;
 
@@ -34,19 +34,17 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
         callbacks.setExtensionName(EXT_NAME);
         callbacks.registerContextMenuFactory((IContextMenuFactory)this);
         this.stdout.println(
-                  "\n======================================================================================================="
+                  "\n================================================================================================================"
                 + "\nUse " + EXT_NAME+" to quickly extract data from Burp to feed other tools or reports:"
-                + "\n- In Proxy/History, choose " + PROXYHIST_CONTEXTMENU_COPYRAW 
+                + "\n- In Proxy/History or Target/Contents, choose " + PROXYHIST_CONTEXTMENU_COPYRAW 
                 + "\n- In Target/Issues, choose " + TARGETISSUES_CONTEXTMENU_COPYTEXT
-                + "\nLatest source here: https://github.com/jourzero/clipboarder"
-                + "\nCheers,"
-                + "\nEric Paquet"
-                + "\n"
+                + "\nCheers,\nEric Paquet <eric@jourzero.com>\n"
                 + "\nNotes:"
-                + "\n- Evidence corresponds to the Request/Response for the 1st instance of an issue, encoded in Base64"
+                + "\n- Evidence (in issue clipboard data) corresponds to Request/Response for the 1st instance of an issue, in Base64"
                 + "\n- Remediation Details (when included) is specific to the 1st instance of an issue (others are not kept)"
                 + "\n- Issue Details (when included) is specific to the 1st instance of an issue (others are not kept)"
-                + "\n=======================================================================================================\n");
+                + "\n- Latest source can be found here: https://github.com/jourzero/clipboarder"
+                + "\n================================================================================================================\n");
     }
 
     /**
@@ -104,8 +102,6 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
         // Iterate through all selected issues
         for (IScanIssue issue : issues) {
             issueName = issue.getIssueName();
-            //this.stdout.println("DEBUG: Reading data for issue: " + issueName);
-            
             // If the issue name at hand is different, print the details.
             // If it is not different (from the previous), just print the URL. 
             // This logic essentially collapses multiple instances of the same issue.
@@ -130,7 +126,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
                         this.buildRawHttpBuffer(msg);
                     }
                     if (strBuf != null){
-                        buf.append(toBase64(strBuf.toString()));
+                        buf.append(this.helpers.base64Encode(strBuf.toString()));
                     }
                 }
                 buf.append("\n~\nURL(s):");
@@ -183,24 +179,14 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
     private void buildRawHttpBuffer(IHttpRequestResponse message){
         
         IRequestInfo ri = this.helpers.analyzeRequest(message);
+        strBuf.append("=======" + ri.getUrl() + "======");
+               
+        strBuf.append("\n===REQUEST===\n");
         byte[] req = message.getRequest();
-        Boolean firstHeader = true;
-        for (String header : ri.getHeaders()) {
-            if (firstHeader){
-                String[] elements = header.split(" ");
-                String url = elements[1];
-                strBuf.append("\n======== PATH: " + url + " ========");
-                strBuf.append("\n===REQUEST===\n");
-                firstHeader = false;
-            }
-            strBuf.append(header);
-            strBuf.append("\n");
+        if (req.length > 0) {
+            strBuf.append(this.helpers.bytesToString(req));
         }
-        int bo = ri.getBodyOffset();
-        if (bo < req.length - 1) {
-            strBuf.append("\n");
-            strBuf.append(new String(req, bo, req.length - bo));
-        }
+        strBuf.append("\n===");
         strBuf.append("\n===\n");
 
         byte[] rsp = message.getResponse();
@@ -211,17 +197,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
         strBuf.append("\n===");
     }
 
-    /**
-     * Covert plain text into Base64
-     * @param text Text to encode in Base64
-     * @return Base64-encoded output
-     */
-    private String toBase64(String text){        
-        return Base64.getEncoder().encodeToString(text.getBytes());
-    }
-
     @Override
     public void lostOwnership(Clipboard aClipboard, Transferable aContents) {
     }
-
 }
