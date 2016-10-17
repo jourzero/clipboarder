@@ -187,7 +187,6 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
         if (req.length > 0) {
             strBuf.append(this.helpers.bytesToString(req));
         }
-        strBuf.append("\n===");
         strBuf.append("\n===\n");
 
         byte[] rsp = message.getResponse();
